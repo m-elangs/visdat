@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Steam Game Visualisasi</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f5f6f7;
+            margin: 0;
+            padding: 0 20px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 30px 0 10px;
+            color: #202225;
+        }
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #40444b;
+            margin-bottom: 15px;
+        }
+        .chart {
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 5px 5px 15px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            width: 220px;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+        }
+        button.reset-btn {
+            background-color: #ef4444;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        table, th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #eef2f7;
+        }
+        .message {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Steam Game Visualisasi 🎮</h1>
+
+    <div class="chart">
+        <h2>Pie Chart</h2>
+        {{ pie_chart | safe }}
+    </div>
+
+    <div class="chart">
+        <h2>Bar Chart – Genre Tahun {{ selected_year }}</h2>
+        <form method="get">
+            <label for="year">Pilih Tahun:</label>
+            <select name="year" id="year" onchange="this.form.submit()">
+                {% for y in range(2000, 2019) %}
+                    <option value="{{ y }}" {% if selected_year == y|string %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {{ bar_chart | safe }}
+    </div>
+
+    <div class="chart">
+        <h2>Line Chart</h2>
+        {{ line_chart | safe }}
+    </div>
+
+    <div class="chart">
+        <h2>Scatter Chart (Harga vs Diskon)</h2>
+        {{ scatter_chart | safe }}
+    </div>
+
+    <div class="chart">
+        <h2>Growth Chart</h2>
+        {{ growth_chart | safe }}
+        <div class="message">
+            <strong>Insight:</strong><br>
+            {{ growth_insight | safe }}
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="chart">
+        <h2>🎯 AI Game Recommendation</h2>
+        <form id="recommend-form" method="get">
+            <input type="text" name="genre" placeholder="Genre apa nih? (Contoh: RPG)" required>
+            <input type="number" name="rec_year" placeholder="Mau tahun berapa? (Contoh: 2018)" required>
+            <input type="number" name="min_rating" placeholder="Rating minimal berapa? (Contoh: 70)" required>
+            <br>
+            <button type="submit">Cariin Game 🎮</button>
+            <button type="button" class="reset-btn" onclick="resetForm()">Reset ✖️</button>
+        </form>
+
+        {% if ai_message %}
+            <div class="message fade-in">
+                {{ ai_message }}
+            </div>
+        {% endif %}
+
+        {% if ai_recommendations %}
+            <h3>✨ Berikut rekomendasi terbaik:</h3>
+            <div class="fade-in">
+                {{ ai_recommendations | safe }}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+    document.querySelector("#recommend-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const params = new URLSearchParams(new FormData(form));
+        const response = await fetch("/?" + params.toString());
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const newAISection = doc.querySelector(".chart:last-of-type");
+        const currentAISection = document.querySelector(".chart:last-of-type");
+        currentAISection.innerHTML = newAISection.innerHTML;
+        currentAISection.classList.add("fade-in");
+        setTimeout(() => {
+            currentAISection.classList.remove("fade-in");
+        }, 1000);
+    });
+
+    function resetForm() {
+        document.getElementById("recommend-form").reset();
+    }
+    </script>
+
+</body>
+</html>
