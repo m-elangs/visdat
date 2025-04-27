@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rekomendasi Game AI</title>
+    <style>
+        body { font-family: sans-serif; margin: 30px; max-width: 800px; }
+        form { margin-bottom: 30px; }
+        input, select, button {
+            padding: 8px;
+            margin: 5px;
+            width: 220px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .message {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 AI Game Recommendation</h1>
+
+    <form method="POST">
+        <input type="text" name="genre" placeholder="Genre apa nih? (Contoh: RPG)" required>
+        <input type="number" name="year" placeholder="Mau tahun berapa? (Maksimal tahun 2020)" required>
+        <input type="number" name="min_rating" placeholder="Rating minimal berapa? (Contoh: 70)" required>
+        <br>
+        <button type="submit">Cariin Game 🎮</button>
+    </form>
+
+    {% if message %}
+        <div class="message">
+            <strong>{{ message }}</strong>
+        </div>
+    {% endif %}
+
+    {% if recommendations %}
+        <h2>✨ Berikut rekomendasi terbaik:</h2>
+        {{ recommendations | safe }}
+
+        <br><br>
+        <a href="/recommend">
+            <button>🔄 Coba Rekomendasi Lain</button>
+        </a>
+    {% endif %}
+</body>
+</html>
