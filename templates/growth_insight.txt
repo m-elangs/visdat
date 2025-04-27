@@ -1,0 +1,3 @@
+Tahun dengan rilis game terbanyak adalah 2019.
+    Tahun dengan rilis game paling sedikit adalah 2001.
+    Pada tahun 2019, Steam menambahkan 2957 game.
